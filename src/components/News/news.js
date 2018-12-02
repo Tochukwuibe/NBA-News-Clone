@@ -1,9 +1,9 @@
-import React from 'react';
+import React from 'react'
 import Slider from '../widgets/Slider/slider';
 import NewsList from '../widgets/NewsList/newsList';
-import VideosList from '../widgets/VideosList/videosList';
 
-const Home = (props) => {
+export default () => {
+
 
     return (
         <div>
@@ -13,22 +13,13 @@ const Home = (props) => {
                 start={0}
                 amount={6}
             />
-
             <NewsList
-                type="card"
+                type="img-card"
                 loadMore={true}
-                start={3}
-                amount={3}
-            />
-            <VideosList
-                type="card"
-                title={true}
-                loadmore={false}
                 start={0}
-                amount={3}
+                amount={5}
             />
         </div>
     );
-}
 
-export default Home;
+}

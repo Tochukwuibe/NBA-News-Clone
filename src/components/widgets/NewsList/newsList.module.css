@@ -1,0 +1,62 @@
+.NewsListItem {
+    border: 1px solid #f2f2f2;
+    background: white;
+    margin-top: 0px;
+    padding: 8px 5px 0 5px 
+}
+
+
+.NewsListItem  h2 {
+    font-size: 13px;
+    line-height: 21px;
+    margin: 5px 0;
+    color: #525252;
+}
+
+
+.NewsListItem a {
+    text-decoration: none;
+}
+
+.NewsListWrapper {
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all .5s ease-in;
+}
+
+.NewsListWrapperEnter {
+    opacity: 1;
+    transform: translateX(0%);
+    
+}
+
+
+.ImgCardWrapper {
+    display: flex;
+    border-bottom: 2px solid #d5d5d5;
+    background: white;
+}
+
+.ImgCardWrapper h2 {
+    font-size: 13px;
+    color: #525252;
+}
+
+
+.Left {
+    background-size: cover !important;
+}
+
+.Left div {
+    width: 90px;
+    height: 90px;
+    background-size: 40px !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+}
+
+.Right {
+    flex-grow: 1;
+    padding: 10px;
+}

@@ -1,0 +1,24 @@
+.Header {
+    background: #242424;
+    border-bottom: 1px solid black;
+    height: auto;
+}
+
+.Content {
+    display: flex;
+
+}
+
+.Logo {
+    flex-grow: 1;
+    padding-top: 8px;
+}
+
+.Logo img {
+    width: 35px;
+}
+
+
+.Bars {
+
+}

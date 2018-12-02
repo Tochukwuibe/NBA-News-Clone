@@ -1,0 +1,32 @@
+.FeaturedItem {
+    position: relative;
+}
+
+
+.FeaturedItem  a {
+    position: absolute;
+    text-decoration: none;
+    width: 100%;
+    bottom:  0;
+    right: 0;
+}
+
+
+.FeaturedImage {
+    height: 330px;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    background-position: center;
+}
+
+
+.FeaturedCaption {
+    color: white;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+    font-weight: 300;
+    font-size: 28px;
+    box-sizing: border-box;
+}
+

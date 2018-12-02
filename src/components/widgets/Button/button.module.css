@@ -1,0 +1,14 @@
+.LoadMore{
+    width: 100%;
+    background: #2196f3;
+    border-bottom: 1px solid #dfdfdf;
+    font-weight: 500;
+    padding: 5px;
+    color: #eeeeee;
+    text-align: center;
+    cursor: pointer;
+    font-size: 15px;
+    display: block;
+    text-decoration: none;
+    
+}
