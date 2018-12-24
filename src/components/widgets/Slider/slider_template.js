@@ -42,7 +42,7 @@ const mapFeatured = (data) => {
         <div key={i}>
             <div className={styles.FeaturedItem}>
                 <div className={styles.FeaturedImage}
-                    style={{ background: `url(assets/images/articles/${item.image})` }}
+                    style={{ background: `url(${item.image})` }}
                 >
                     <Link to={`/articles/${item.id}`}>
                         <div className={styles.FeaturedCaption}>

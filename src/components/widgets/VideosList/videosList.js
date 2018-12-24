@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import styles from './videosList.module.css'
-import axios from 'axios';
 import Button from '../Button/button';
-import { API_ENDPOINT } from '../../../config';
 import VideoListItem from './videoListItem';
+import { db } from '../../../app-firebase';
 
 
 export default class VideosList extends Component {
@@ -12,45 +11,56 @@ export default class VideosList extends Component {
         teams: [],
         videos: [],
         start: 0,
-        end: 0
+        stop: 0,
+        done: false
     }
 
     componentWillMount = async () => {
-        await this.fetchTeams();
-        this.fetchVideos(this.props.start, this.props.start + this.props.amount);
+        await this.fetchVideos(this.props.start, this.props.start + this.props.amount);
     }
 
     render = () => this.renderView()
 
 
     renderView() {
-        return (
-            <div className={styles.VideosList}>
-                {this.renderTitle()}
-                {this.renderRelatedVideos()}
-                {this.renderButton()}
-            </div>
-        );
+        let view = (<p>Loading...</p>)
+
+        if (this.state.videos.length && this.state.teams.length) {
+            view = (
+                <div className={styles.VideosList}>
+                    {this.renderTitle()}
+                    {this.renderRelatedVideos()}
+                    {this.renderButton()}
+                </div>
+            );
+        }
+        return view;
     }
 
 
 
 
-    fetchTeams = async () => {
-        const { data } = await axios.get(`${API_ENDPOINT}/teams`);
-        this.setState({ teams: data });
+    fetchTeams = async (videos) => {
+
+        return await Promise.all(
+            videos.map(async (video) => {
+                const snap = await db.ref('teams').orderByChild('id').equalTo(+video.team).limitToFirst(1).once('value');
+                return Object.keys(snap.val()).map((key) => ({ ...snap.val()[key], key }))[0];
+            }))
     }
 
-    fetchVideos = async (start, end) => {
-        const { data } = await axios.get(`${API_ENDPOINT}/videos?_start=${start}&_end=${end}`);
+    fetchVideos = async (start, stop) => {
+        const snap = await db.ref('videos').orderByChild('id').startAt(start).limitToFirst(stop).once('value');
+        const videos = !!snap.val() ? Object.keys(snap.val()).map((key) => ({ ...snap.val()[key], key })) : [];
+        const teams = await this.fetchTeams(videos)
 
         this.setState((state) => {
-            return { videos: state.videos.concat(data), start, end }
+            return { videos: state.videos.concat(videos), teams: state.teams.concat(teams), start, stop, done: !(!!videos.length) }
         });
     }
 
     onFetchMore = async () => {
-        await this.fetchVideos(this.state.end, this.state.end  + this.props.amount)
+        await this.fetchVideos(this.state.start + this.state.stop, this.state.stop)
     }
 
 
@@ -67,7 +77,7 @@ export default class VideosList extends Component {
             // linkTo: this.props.loadmore ? '' : '/videos',
             clicked: this.onFetchMore,
         }
-        return <Button {...props} >{text}</Button>
+        return !!this.state.done ? null : <Button {...props} >{text}</Button>
     }
 
 

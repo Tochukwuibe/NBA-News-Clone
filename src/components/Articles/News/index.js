@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import styles from '../articles.module.css'
-import { API_ENDPOINT } from '../../../config';
 import ArticleHeader from './Post/header';
+import { db } from '../../../app-firebase';
 
 
 export default class NewsArticles extends Component {
@@ -43,27 +42,29 @@ export default class NewsArticles extends Component {
             <h1>{this.state.article.title}</h1>
             <div
                 className={styles.ArticleImg}
-                style={{ background: `url(/assets/images/articles/${this.state.article.image})` }}>
+                style={{ background: `url(${this.state.article.image})` }}>
             </div>
 
-            <div className={styles.ArticleText}>
-                    {this.state.article.body}
+            <div className={styles.ArticleText}
+            dangerouslySetInnerHTML={{
+                __html: this.state.article.body
+            }}
+            >
             </div>
         </div>
     );
 
 
     fetchTeam = async () => {
-
-        const { data } = await axios.get(`${API_ENDPOINT}/teams?id=${this.state.article.team}`);
-        this.setState({ team: data[0] });
+        const snap = await db.ref(`teams`).orderByChild('id').equalTo(this.state.article.team).once('value')
+        const team = Object.keys(snap.val()).map((key) => ({...snap.val()[key], key }))[0];
+        this.setState({ team });
     }
 
     fetchArticle = async () => {
         const articleId = this.props.match.params.id;
-        const { data } = await axios.get(`${API_ENDPOINT}/articles/${articleId}`);
-        this.setState((state) => {
-            return { article: data }
-        })
+        const snap = await db.ref(`articles`).orderByChild('id').equalTo(+articleId).once('value')
+        const article = Object.keys(snap.val()).map((key) => ({...snap.val()[key], key }))[0];
+        this.setState({ article })
     }
 }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import axios from 'axios'
-import { API_ENDPOINT } from '../../../config';
 import SliderTemplates from './slider_template';
+import { db } from '../../../app-firebase';
 
 
 export default class Slider extends Component {
@@ -17,14 +16,15 @@ export default class Slider extends Component {
 
 
     fetchArticles = async () => {
-        const { data } = await axios.get(`${API_ENDPOINT}/articles?_start=${this.props.start}&_end=${this.props.start + this.props.amount}`)
-        this.setState({ news: data })
+        const snap = await db.ref('articles').orderByChild('id').startAt(0).limitToFirst(5).once('value');
+        const news = !!snap.val() ? Object.keys(snap.val()).map((key) => ({ ...snap.val()[key], key })) : [];
+        this.setState({ news })
     }
 
     renderView() {
         return (
             <div>
-                <SliderTemplates data={this.state.news} settings={this.props.settings} type={this.props.type} />
+                {!!this.state.news.length ? <SliderTemplates data={this.state.news} settings={this.props.settings} type={this.props.type} /> : <p>Loading....</p> }
             </div>
 
         );

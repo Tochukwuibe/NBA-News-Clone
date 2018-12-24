@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import styles from '../articles.module.css';
-import axios from 'axios';
-import { API_ENDPOINT } from '../../../config';
 import VideoHeader from './header';
 import VideoListItem from '../../widgets/VideosList/videoListItem';
+import { db } from '../../../app-firebase';
 
 export default class videoArticle extends Component {
 
@@ -11,8 +10,8 @@ export default class videoArticle extends Component {
   state = {
     video: null,
     team: null,
-    teams: [],
-    related: []
+    teams: null,
+    related: null
   }
 
   render = () => {
@@ -20,12 +19,29 @@ export default class videoArticle extends Component {
   }
 
   componentWillMount = async () => {
-    await this.fetchArticle();
+    await this.fetchVideo();
     await this.fetchTeam();
-    await this.fetchTeams();
-    await this.fetchRelated();
-    console.log('the state ', this.state);
+    await this.fetchRelatedVideos();
   }
+
+
+
+  componentDidUpdate = async (prevProps, prevState) => {
+
+    if (prevProps.match.params.id !== this.props.match.params.id) {
+      console.log('id  changed')
+      await this.fetchVideo();
+      await this.fetchTeam();
+      await this.fetchRelatedVideos();
+    } else {
+      console.log('id didnot change')
+    }
+
+  }
+
+
+
+
 
 
   renderView = () => {
@@ -56,10 +72,16 @@ export default class videoArticle extends Component {
   }
 
   renderRelated = () => {
-    let view = <p>Loading...</p>
-    if (this.state.related.length > 0) {
+    let view = (<p>Loading...</p>)
+
+    if (this.state.related) {
+      view = (<p style={{ textAlign: 'center' }}>No related videos</p>)
+    }
+
+    if (this.state.related && this.state.related.length > 0) {
       view = (
         <div className={styles.RelatedWrapper}>
+          <h3>Related Videos</h3>
           {
             this.state.related.map((video, index) => {
               return <VideoListItem type="card" key={index} team={this.state.teams.find((team) => team.id === video.team)} video={video} />
@@ -71,34 +93,41 @@ export default class videoArticle extends Component {
       )
     }
 
+
+
     return view;
   }
 
 
-  fetchArticle = async () => {
-    const articleId = this.props.match.params.id;
-    const { data } = await axios.get(`${API_ENDPOINT}/videos/${articleId}`);
-    this.setState((state) => {
-      return { video: data }
-    })
+  fetchVideo = async () => {
+    const videoId = this.props.match.params.id;
+    const snap = await db.ref('videos').orderByChild('id').equalTo(+videoId).limitToFirst(1).once('value');
+    const video = Object.keys(snap.val()).map((key) => ({ ...snap.val()[key], key }))[0];
+    this.setState({ video })
   }
 
   fetchTeam = async () => {
-
-    const { data } = await axios.get(`${API_ENDPOINT}/teams?id=${this.state.video.team}`);
-    this.setState({ team: data[0] });
-
+    const snap = await db.ref('teams').orderByChild('id').equalTo(this.state.video.team).limitToFirst(1).once('value');
+    const team = Object.keys(snap.val()).map((key) => ({ ...snap.val()[key], key }))[0];
+    this.setState({ team });
   }
 
-  fetchRelated = async () => {
-    const { data } = await axios.get(`${API_ENDPOINT}/videos?q=${this.state.team.city}&_limit=3`);
+  fetchRelatedVideos = async () => {
 
-    this.setState({ related: data });
+    const snap = await db.ref('videos').orderByChild('team').equalTo(this.state.video.team).limitToFirst(3).once('value'); 
+    const related = Object.keys(snap.val()).map((key) => ({ ...snap.val()[key], key }));
+    const teams = await this.fetchTeams(related);
+
+    this.setState({ related, teams });
   }
-  fetchTeams = async () => {
 
-    const { data } = await axios.get(`${API_ENDPOINT}/teams`);
-    this.setState({ teams: data });
+
+  fetchTeams = async (videos) => {
+    return await Promise.all(
+      videos.map(async (article) => {
+        const snap = await db.ref('teams').orderByChild('id').equalTo(+article.team).limitToFirst(1).once('value');
+        return Object.keys(snap.val()).map((key) => ({ ...snap.val()[key], key }))[0];
+      }))
 
   }
 }
