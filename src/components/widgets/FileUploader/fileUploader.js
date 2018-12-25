@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { storage, db } from '../../../app-firebase';
+import { storage } from '../../../app-firebase';
 import FileUploader from 'react-firebase-file-uploader';
 export default class Uploader extends Component {
 

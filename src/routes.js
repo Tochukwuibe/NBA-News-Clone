@@ -11,6 +11,7 @@ import { AuthContext, auth } from './app-firebase';
 import SignOut from './components/SignOut/SignOut';
 import Dashboard from './components/Dashboard/dashboard';
 import PrivateRoute from './components/AuthGuards/privateRoutes';
+import ProtectedRoute from './components/AuthGuards/protectedRoutes';
 export default class Routes extends Component {
     state = { user: null }
     sub = null;
@@ -34,7 +35,7 @@ export default class Routes extends Component {
                             <Route path="/news" exact={true} component={News} />
                             <Route path="/videos" exact={true} component={Videos} />
                             <PrivateRoute path="/dashboard" exact={true} component={Dashboard} />
-                            <Route path="/sign-in" exact={true} component={SignIn} />
+                            <ProtectedRoute path="/sign-in" exact={true} component={SignIn} />
                             <Route path="/sign-out" exact={true} component={SignOut} />
                             <Route path="/articles/:id" exact={true} component={NewsArticles} />
                             <Route path="/videos/:id" exact={true} component={videoArticle} />
